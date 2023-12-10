@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "/pb";
+
+// The request message containing the WiFi credentials.
+message WifiCredentials {
+  string ssid = 1;
+  string password = 2;
+}
+
+// The response message containing the confirmation.
+message Confirmation {
+  string message = 1;
+}
+
+message Request {}
+
+// The WiFi service definition.
+service WifiService {
+  // Sends WiFi credentials
+  rpc SendCredentials (WifiCredentials) returns (Confirmation) {}
+  // Receives WiFi credentials from the server
+  rpc GetCredentials (Request) returns (WifiCredentials) {}
+}
