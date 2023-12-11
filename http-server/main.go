@@ -19,7 +19,7 @@ var captive CaptiveJson = CaptiveJson{
 func main() {
 
 	http.HandleFunc("/captive", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf(r.Host, r.Body, r.Header, r.Method)
+		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
 		j, err := json.Marshal(captive)
 		if err != nil {
 			log.Fatal(err)
@@ -30,7 +30,7 @@ func main() {
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf(r.Host, r.Body, r.Header, r.Method)
+		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
 
 		http.ServeFile(w, r, "./static/index.html")
 
