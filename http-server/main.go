@@ -13,12 +13,12 @@ type CaptiveJson struct {
 
 var captive CaptiveJson = CaptiveJson{
 	Captive:       true,
-	UserPortalUrl: "http://192.168.2.2/index.html",
+	UserPortalUrl: "http://192.168.2.2/",
 }
 
 func main() {
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/captive", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf(r.Host, r.Body, r.Header, r.Method)
 		j, err := json.Marshal(captive)
 		if err != nil {
@@ -29,7 +29,7 @@ func main() {
 		w.Write(j)
 	})
 
-	http.HandleFunc("/index.html", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf(r.Host, r.Body, r.Header, r.Method)
 
 		http.ServeFile(w, r, "./static/index.html")
