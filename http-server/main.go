@@ -2,12 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 	"os/exec"
 	"runtime"
-	"strings"
 )
 
 type CaptiveJson struct {
@@ -21,7 +19,7 @@ var captive CaptiveJson = CaptiveJson{
 }
 
 const linuxCmd = "nmcli"
-const linuxArgs = "-f SSID dev wifi"
+const linuxArgs = "-f SSID -t dev wifi"
 
 func WifiName() string {
 	platform := runtime.GOOS
@@ -35,7 +33,8 @@ func WifiName() string {
 
 func forLinux() string {
 	cmd := exec.Command(linuxCmd, linuxArgs)
-	stdout, err := cmd.StdoutPipe()
+	output, err := cmd.CombinedOutput()
+
 	if err != nil {
 		panic(err)
 	}
@@ -46,16 +45,7 @@ func forLinux() string {
 	}
 	defer cmd.Wait()
 
-	var str string
-
-	if b, err := io.ReadAll(stdout); err == nil {
-		log.Printf("cmd", b)
-		str += (string(b) + "\n")
-	}
-	log.Printf("string", str)
-
-	name := strings.Replace(str, "\n", "", -1)
-	return name
+	return string(output)
 }
 
 func main() {
