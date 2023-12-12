@@ -18,7 +18,9 @@
     <select name="ssid" required>
       <option value="">--Please choose an option--</option>
       {{range .Ssids}}
-        <option value="{{.}}">{{.}}</option>
+        {{if ne (len .) 0}}
+          <option value="{{.}}">{{.}}</option>
+        {{end}}
       {{end}}
     </select>
   {{end}}
