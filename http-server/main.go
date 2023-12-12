@@ -31,7 +31,7 @@ func WifiName() string {
 }
 
 func forLinux() string {
-	cmd := exec.Command(linuxCmd, `-f SSID -t dev wifi`)
+	cmd := exec.Command(linuxCmd, `-t dev wifi`)
 	log.Printf("cmd", cmd)
 	output, _ := cmd.CombinedOutput()
 
