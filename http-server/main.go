@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 )
 
 type CaptiveJson struct {
@@ -25,6 +26,14 @@ type WiFis struct {
 	Ssids []string
 }
 
+type Credentials struct {
+	Ssid     string
+	Password string
+}
+
+var credentials Credentials
+var mu sync.Mutex
+
 func WifiNames() WiFis {
 	var wifis WiFis
 
@@ -33,11 +42,10 @@ func WifiNames() WiFis {
 		log.Printf("cmd", cmd)
 		output, err := cmd.CombinedOutput()
 
-		if err != nil {
-			panic(err)
+		if err == nil {
+			wifis.Ssids = strings.Split(string(output), "\n")
 		}
 
-		wifis.Ssids = strings.Split(string(output), "\n")
 	}
 
 	return wifis
@@ -48,6 +56,7 @@ func main() {
 	mux.HandleFunc("/", index)
 	mux.HandleFunc("/captive", serveCaptive)
 	mux.HandleFunc("/wifilist", getWifiList)
+	mux.HandleFunc("/save", saveWifi)
 
 	err := http.ListenAndServe(":50052", mux)
 	log.Fatal(err)
@@ -57,7 +66,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
 
 	t, _ := template.ParseFiles("templates/base.html", "templates/index.html")
-	err := t.Execute(w, nil)
+	err := t.Execute(w, credentials)
 
 	if err != nil {
 		fmt.Println(err)
@@ -87,4 +96,19 @@ func getWifiList(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		panic(err)
 	}
+}
+
+func saveWifi(w http.ResponseWriter, r *http.Request) {
+	log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
+
+	if r.Method == "POST" {
+
+		mu.Lock()
+		credentials.Ssid = r.FormValue("ssid")
+		credentials.Password = r.FormValue("password")
+		log.Printf("saving credentials for %s", credentials.Ssid)
+		mu.Unlock()
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
