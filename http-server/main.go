@@ -39,10 +39,11 @@ func WifiNames() WiFis {
 
 	if runtime.GOOS == "linux" {
 		cmd := exec.Command("nmcli", `-f`, `SSID`, `-t`, `dev`, `wifi`)
-		log.Printf("cmd", cmd)
-		output, err := cmd.CombinedOutput()
 
+		output, err := cmd.CombinedOutput()
+		log.Printf("out", output)
 		if err == nil {
+			log.Printf("split", strings.Split(string(output), "\n"))
 			wifis.Ssids = strings.Split(string(output), "\n")
 		}
 
