@@ -48,6 +48,7 @@ func forLinux() string {
 	var str string
 
 	if b, err := io.ReadAll(stdout); err == nil {
+		log.Printf("cmd", b)
 		str += (string(b) + "\n")
 	}
 
