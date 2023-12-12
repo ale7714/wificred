@@ -34,7 +34,7 @@ func forLinux() string {
 	cmd := exec.Command(linuxCmd, "-f SSID", "-t", "dev", "wifi")
 	log.Printf("cmd", cmd)
 	output, _ := cmd.Output()
-	log.Printf("cmd out", cmd)
+	log.Printf("cmd out", cmd.Output())
 	// if err != nil {
 	// 	panic(err)
 	// }
