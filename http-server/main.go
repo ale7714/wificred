@@ -2,8 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
+	"os/exec"
+	"runtime"
+	"strings"
 )
 
 type CaptiveJson struct {
@@ -14,6 +18,40 @@ type CaptiveJson struct {
 var captive CaptiveJson = CaptiveJson{
 	Captive:       true,
 	UserPortalUrl: "http://192.168.2.2/",
+}
+
+const linuxCmd = "nmcli -f SSID dev wifi "
+
+func WifiName() string {
+	platform := runtime.GOOS
+	if platform == "Linux" {
+		return forLinux()
+	}
+
+	return ""
+}
+
+func forLinux() string {
+	cmd := exec.Command(linuxCmd)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		panic(err)
+	}
+
+	// start the command after having set up the pipe
+	if err := cmd.Start(); err != nil {
+		panic(err)
+	}
+	defer cmd.Wait()
+
+	var str string
+
+	if b, err := io.ReadAll(stdout); err == nil {
+		str += (string(b) + "\n")
+	}
+
+	name := strings.Replace(str, "\n", "", -1)
+	return name
 }
 
 func main() {
@@ -31,6 +69,14 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
+
+		http.ServeFile(w, r, "./static/index.html")
+
+	})
+
+	http.HandleFunc("/wifilist", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
+		w.Write([]byte(forLinux()))
 
 		http.ServeFile(w, r, "./static/index.html")
 
