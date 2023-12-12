@@ -26,7 +26,7 @@ const linuxArgs = "-f SSID dev wifi"
 func WifiName() string {
 	platform := runtime.GOOS
 	log.Printf("platform", platform)
-	if platform == "Linux" {
+	if platform == "inux" {
 		return forLinux()
 	}
 
