@@ -20,7 +20,7 @@ var captive CaptiveJson = CaptiveJson{
 	UserPortalUrl: "http://192.168.2.2/",
 }
 
-const linuxCmd = "nmcli"
+const linuxCmd = "sudo nmcli"
 const linuxArgs = "-f SSID dev wifi"
 
 func WifiName() string {
