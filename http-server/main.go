@@ -33,7 +33,7 @@ func WifiName() string {
 func forLinux() string {
 	cmd := exec.Command(linuxCmd, "-f SSID", "-t", "dev", "wifi")
 	log.Printf("cmd", cmd)
-	output, _ := cmd.Output()
+	output, _ := cmd.CombinedOutput()
 
 	// if err != nil {
 	// 	panic(err)
