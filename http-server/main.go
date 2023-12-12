@@ -51,6 +51,7 @@ func forLinux() string {
 		log.Printf("cmd", b)
 		str += (string(b) + "\n")
 	}
+	log.Printf("string", str)
 
 	name := strings.Replace(str, "\n", "", -1)
 	return name
