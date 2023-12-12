@@ -35,9 +35,9 @@ func forLinux() string {
 	cmd := exec.Command(linuxCmd, linuxArgs)
 	output, err := cmd.Output()
 
-	if err != nil {
-		panic(err)
-	}
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	return string(output)
 }
