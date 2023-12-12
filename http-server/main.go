@@ -77,7 +77,9 @@ func main() {
 
 	http.HandleFunc("/wifilist", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
-		w.Write([]byte(WifiName()))
+		wifis := WifiName()
+		log.Printf("wifis", wifis)
+		w.Write([]byte(wifis))
 	})
 
 	log.Fatal(http.ListenAndServe(":50052", nil))
