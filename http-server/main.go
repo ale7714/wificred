@@ -19,7 +19,6 @@ var captive CaptiveJson = CaptiveJson{
 }
 
 const linuxCmd = "nmcli"
-const linuxArgs = "-f SSID -t dev wifi"
 
 func WifiName() string {
 	platform := runtime.GOOS
@@ -32,7 +31,7 @@ func WifiName() string {
 }
 
 func forLinux() string {
-	cmd := exec.Command(linuxCmd, linuxArgs)
+	cmd := exec.Command(linuxCmd, "-f SSID", "-t", "dev", "wifi")
 	output, _ := cmd.Output()
 
 	// if err != nil {
