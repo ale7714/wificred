@@ -20,7 +20,8 @@ var captive CaptiveJson = CaptiveJson{
 	UserPortalUrl: "http://192.168.2.2/",
 }
 
-const linuxCmd = "nmcli -f SSID dev wifi "
+const linuxCmd = "nmcli"
+const linuxArgs = "-f SSID dev wifi"
 
 func WifiName() string {
 	platform := runtime.GOOS
@@ -32,7 +33,7 @@ func WifiName() string {
 }
 
 func forLinux() string {
-	cmd := exec.Command(linuxCmd)
+	cmd := exec.Command(linuxCmd, linuxArgs)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		panic(err)
@@ -76,7 +77,7 @@ func main() {
 
 	http.HandleFunc("/wifilist", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
-		w.Write([]byte(forLinux()))
+		w.Write([]byte(WifiName()))
 
 		http.ServeFile(w, r, "./static/index.html")
 
