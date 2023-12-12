@@ -22,7 +22,7 @@ const linuxCmd = "nmcli"
 
 func WifiName() string {
 	platform := runtime.GOOS
-	log.Printf("platform", platform)
+
 	if platform == "linux" {
 		return forLinux()
 	}
@@ -32,8 +32,9 @@ func WifiName() string {
 
 func forLinux() string {
 	cmd := exec.Command(linuxCmd, "-f SSID", "-t", "dev", "wifi")
+	log.Printf("cmd", cmd)
 	output, _ := cmd.Output()
-
+	log.Printf("cmd out", cmd)
 	// if err != nil {
 	// 	panic(err)
 	// }
