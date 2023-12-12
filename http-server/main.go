@@ -33,17 +33,11 @@ func WifiName() string {
 
 func forLinux() string {
 	cmd := exec.Command(linuxCmd, linuxArgs)
-	output, err := cmd.CombinedOutput()
+	output, err := cmd.Output()
 
 	if err != nil {
 		panic(err)
 	}
-
-	// start the command after having set up the pipe
-	if err := cmd.Start(); err != nil {
-		panic(err)
-	}
-	defer cmd.Wait()
 
 	return string(output)
 }
