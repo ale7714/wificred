@@ -33,7 +33,7 @@ func WifiName() string {
 
 func forLinux() string {
 	cmd := exec.Command(linuxCmd, linuxArgs)
-	output, err := cmd.Output()
+	output, _ := cmd.Output()
 
 	// if err != nil {
 	// 	panic(err)
