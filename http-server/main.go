@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 type CaptiveJson struct {
@@ -18,57 +21,70 @@ var captive CaptiveJson = CaptiveJson{
 	UserPortalUrl: "http://192.168.2.2/",
 }
 
-const linuxCmd = "nmcli"
-
-func WifiName() string {
-	platform := runtime.GOOS
-
-	if platform == "linux" {
-		return forLinux()
-	}
-
-	return ""
+type WiFis struct {
+	Ssids []string
 }
 
-func forLinux() string {
-	cmd := exec.Command(linuxCmd, `-f`, `SSID`, `-t`, `dev`, `wifi`)
-	log.Printf("cmd", cmd)
-	output, _ := cmd.CombinedOutput()
+func WifiNames() WiFis {
+	var wifis WiFis
 
-	// if err != nil {
-	// 	panic(err)
-	// }
+	if runtime.GOOS == "linux" {
+		cmd := exec.Command("nmcli", `-f`, `SSID`, `-t`, `dev`, `wifi`)
+		log.Printf("cmd", cmd)
+		output, err := cmd.CombinedOutput()
 
-	return string(output)
+		if err != nil {
+			panic(err)
+		}
+
+		wifis.Ssids = strings.Split(string(output), "\n")
+	}
+
+	return wifis
 }
 
 func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", index)
+	mux.HandleFunc("/captive", serveCaptive)
+	mux.HandleFunc("/wifilist", getWifiList)
 
-	http.HandleFunc("/captive", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
-		j, err := json.Marshal(captive)
-		if err != nil {
-			log.Fatal(err)
-		}
+	err := http.ListenAndServe(":50052", mux)
+	log.Fatal(err)
+}
 
-		w.Header().Set("Content-Type", "application/captive+json")
-		w.Write(j)
-	})
+func index(w http.ResponseWriter, r *http.Request) {
+	log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
+	t, _ := template.ParseFiles("templates/base.html", "templates/index.html")
+	err := t.Execute(w, nil)
 
-		http.ServeFile(w, r, "./static/index.html")
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+}
 
-	})
+func serveCaptive(w http.ResponseWriter, r *http.Request) {
+	log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
+	j, err := json.Marshal(captive)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	http.HandleFunc("/wifilist", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
-		wifis := WifiName()
-		log.Printf("wifis", wifis)
-		w.Write([]byte(wifis))
-	})
+	w.Header().Set("Content-Type", "application/captive+json")
+	w.Write(j)
+}
 
-	log.Fatal(http.ListenAndServe(":50052", nil))
+func getWifiList(w http.ResponseWriter, r *http.Request) {
+	log.Printf(r.Host, r.URL.Path, r.Body, r.Header, r.Method)
+	wifis := WifiNames()
 
+	t, _ := template.ParseFiles("templates/base.html", "templates/wifiform.html")
+	err := t.Execute(w, wifis)
+
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
 }
